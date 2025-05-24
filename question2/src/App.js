@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './App.css';
 
 const VALID_IDS = ['p', 'f', 'e', 'r'];
 
@@ -28,24 +29,24 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '40px auto', fontFamily: 'Arial, sans-serif' }}>
+    <div className="app-container">
       <h2>Average Calculator Microservice Client</h2>
-      <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+      <form onSubmit={handleSubmit}>
         <label>
           Number Type:
-          <select value={numberId} onChange={handleChange} style={{ marginLeft: 10 }}>
+          <select value={numberId} onChange={handleChange}>
             <option value="p">Prime (p)</option>
             <option value="f">Fibonacci (f)</option>
             <option value="e">Even (e)</option>
             <option value="r">Random (r)</option>
           </select>
         </label>
-        <button type="submit" style={{ marginLeft: 15 }}>Fetch & Calculate</button>
+        <button type="submit">Fetch & Calculate</button>
       </form>
-      {loading && <div>Loading...</div>}
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {loading && <div className="loading">Loading...</div>}
+      {error && <div className="error">{error}</div>}
       {response && (
-        <div style={{ background: '#f9f9f9', padding: 20, borderRadius: 8 }}>
+        <div className="response-box">
           <h4>Response</h4>
           <div><strong>windowPrevState:</strong> [{response.windowPrevState.join(', ')}]</div>
           <div><strong>windowCurrState:</strong> [{response.windowCurrState.join(', ')}]</div>

@@ -1,16 +1,15 @@
-// averageCalculatorService.js
-// Microservice for calculating average of numbers fetched from a third-party API
-// Supports: prime (p), fibonacci (f), even (e), random (r)
-
 const express = require('express');
+const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
+app.use(cors());
+
 const PORT = 3000;
 const WINDOW_SIZE = 10;
 const VALID_IDS = ['p', 'f', 'e', 'r'];
 
-// In-memory storage for each number type
+
 const windows = {
   p: [],
   f: [],
@@ -18,10 +17,16 @@ const windows = {
   r: []
 };
 
-// Helper to fetch numbers from third-party API
+
 async function fetchNumbers(numberid) {
-  // Use the correct numberid in the third-party API URL
-  const url = `http://localhost:9876/numbers/${numberid}`;
+    const res = await axios.get(`http://localhost:3000/numbers/${numberId}`);
+  const urlMap = {
+    p: 'http://20.244.56.144/evaluation-service/primes',
+    f: 'http://20.244.56.144/evaluation-service/fibo',
+    e: 'http://20.244.56.144/evaluation-service/even',
+    r: 'http://20.244.56.144/evaluation-service/rand',
+  };
+  const url = urlMap[numberid];
   try {
     const response = await axios.get(url, { timeout: 500 });
     if (Array.isArray(response.data.numbers)) {
@@ -33,7 +38,7 @@ async function fetchNumbers(numberid) {
   }
 }
 
-// Helper to update window with unique numbers, keeping only WINDOW_SIZE
+
 function updateWindow(windowArr, newNumbers) {
   const set = new Set(windowArr);
   for (const num of newNumbers) {
@@ -45,14 +50,14 @@ function updateWindow(windowArr, newNumbers) {
       }
     }
   }
-  // If still over window size (in case of multiple new numbers), trim oldest
+  
   while (windowArr.length > WINDOW_SIZE) {
     windowArr.shift();
   }
   return windowArr;
 }
 
-// Helper to calculate average
+
 function calcAvg(arr) {
   if (arr.length === 0) return 0;
   const sum = arr.reduce((a, b) => a + b, 0);
@@ -69,7 +74,7 @@ app.get('/numbers/:numberid', async (req, res) => {
   let numbers = [];
   let timedOut = false;
 
-  // Fetch numbers with 500ms timeout
+ 
   const fetchPromise = fetchNumbers(numberid);
   const timeoutPromise = new Promise(resolve => setTimeout(() => {
     timedOut = true;
@@ -78,7 +83,6 @@ app.get('/numbers/:numberid', async (req, res) => {
 
   numbers = await Promise.race([fetchPromise, timeoutPromise]);
 
-  // Only update window if not timed out and numbers received
   if (!timedOut && numbers.length > 0) {
     windows[numberid] = updateWindow(windows[numberid], numbers);
   }
